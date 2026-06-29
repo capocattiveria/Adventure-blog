@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -110,7 +111,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func generateJWT(user *model.User) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "dev-secret-change-in-production"
+		return "", fmt.Errorf("JWT_SECRET environment variable is not set")
 	}
 
 	claims := jwt.MapClaims{

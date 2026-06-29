@@ -2,7 +2,7 @@
   "name": "Adventure Blog",
 
   // Usa docker-compose per avere anche Postgres e Redis raggiungibili
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.dev.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
 

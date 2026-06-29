@@ -7,6 +7,7 @@ import (
 	"adventure-blog/internal/handler"
 	custommiddleware "adventure-blog/internal/middleware"
 	"adventure-blog/internal/repository"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -32,6 +33,8 @@ func New(pool *pgxpool.Pool) http.Handler {
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}))
+
+	// #Middleware di Chi router.
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
@@ -39,8 +42,12 @@ func New(pool *pgxpool.Pool) http.Handler {
 	userRepo := repository.NewUserRepository(pool)
 	authHandler := handler.NewAuthHandler(userRepo)
 
+	postRepo := repository.NewPostRepository(pool)
+	postHandler := handler.NewPostHandler(postRepo)
+
 	// public routes — no authentication required
 	r.Get("/health", handler.Health)
+	r.Get("/posts", postHandler.List)
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", authHandler.Register)

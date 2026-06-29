@@ -1,0 +1,30 @@
+# ── Base image ────────────────────────────────────────────────────────────
+FROM golang:1.22-alpine
+
+# Build tools essenziali
+RUN apk add --no-cache git curl build-base
+
+# ── Go tools ──────────────────────────────────────────────────────────────
+# Air: hot reload (ricompila e riavvia ad ogni salvataggio)
+RUN go install github.com/air-verse/air@latest
+
+# golang-migrate: gestione migrazioni DB da riga di comando
+RUN go install -tags 'postgres' \
+    github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+WORKDIR /app
+
+# ── Dipendenze Go (layer cachato) ─────────────────────────────────────────
+# Copiamo solo i file del modulo prima del codice sorgente:
+# se go.mod/go.sum non cambiano, Docker riutilizza questo layer
+# senza riscaricare tutti i pacchetti.
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Il sorgente NON viene copiato qui: viene montato come volume
+# dal docker-compose, così Air vede le modifiche in tempo reale.
+
+EXPOSE 8080
+
+# Air legge la config da .air.toml nella root del progetto
+CMD ["air", "-c", ".air.toml"]

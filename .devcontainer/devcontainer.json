@@ -1,0 +1,85 @@
+{
+  "name": "Adventure Blog",
+
+  // Usa docker-compose per avere anche Postgres e Redis raggiungibili
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+
+  // ── Strumenti installati nel container ──────────────────────────────────
+  "features": {
+    // Go 1.22 + toolchain (gopls, goimports, golangci-lint vengono via postCreate)
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.25"
+    },
+    // Node.js LTS per React Native / Expo
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "nvmVersion": "latest"
+    },
+    // git è già in Ubuntu ma meglio avere l'ultima versione
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  // ── Estensioni VS Code ───────────────────────────────────────────────────
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Go
+        "golang.go",
+        // React Native / JS
+        "msjsdiag.vscode-react-native",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        // Database
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        // Utilità
+        "humao.rest-client",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        // Go
+        "go.toolsManagement.autoUpdate": true,
+        "go.formatTool": "goimports",
+        "go.lintTool": "golangci-lint",
+        "[go]": {
+          "editor.defaultFormatter": "golang.go",
+          "editor.formatOnSave": true
+        },
+        // JS/TS
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        // Generale
+        "editor.rulers": [100],
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+
+  // ── Porte esposte nell'host ──────────────────────────────────────────────
+  "forwardPorts": [8080, 5432, 6379, 8081],
+  "portsAttributes": {
+    "8080": { "label": "Go API" },
+    "5432": { "label": "PostgreSQL" },
+    "6379": { "label": "Redis" },
+    "8081": { "label": "Expo Web" }
+  },
+
+  // ── Setup post-creazione (eseguito una sola volta) ───────────────────────
+  "postCreateCommand": "bash /workspace/adventure-blog/.devcontainer/post-create.sh",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached,readonly"
+  ],
+
+  "remoteUser": "vscode"
+}
